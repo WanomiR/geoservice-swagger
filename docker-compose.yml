@@ -1,6 +1,6 @@
 services:
   server:
-    image: klakegg/hugo:0.101.0-ext-alpine
+    image: klakegg/hugo:alpine
     container_name: hugo
     command: server
     entrypoint: hugo
