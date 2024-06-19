@@ -1,0 +1,10 @@
+baseURL = 'http://example.org/'
+languageCode = 'en-us'
+title = 'Задачи с proxy'
+theme = 'hugo-book'
+
+[Site.Params]
+IsMultiLingual = false
+
+[markup.goldmark.renderer]
+unsafe = true

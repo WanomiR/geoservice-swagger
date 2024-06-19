@@ -1,0 +1,25 @@
+services:
+  server:
+    image: klakegg/hugo:0.101.0-ext-alpine
+    container_name: hugo
+    command: server
+    entrypoint: hugo
+    volumes:
+      - ./hugo:/src
+    ports:
+      - "1313:1313"
+    networks:
+      - mylocal
+  app:
+    build: ./proxy
+    container_name: proxy
+    volumes:
+      - ./hugo/content:/app/static
+    ports:
+      - "8080:8080"
+    networks:
+      - mylocal
+
+networks:
+    mylocal:
+        driver: bridge
