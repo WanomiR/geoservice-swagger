@@ -1,16 +1,4 @@
-package main
-
-import "encoding/json"
-
-func UnmarshalGeoCode(data []byte) (GeoCode, error) {
-	var r GeoCode
-	err := json.Unmarshal(data, &r)
-	return r, err
-}
-
-func (r *GeoCode) Marshal() ([]byte, error) {
-	return json.Marshal(r)
-}
+package geoservice
 
 type GeoCode struct {
 	Suggestions []Suggestion `json:"suggestions"`
