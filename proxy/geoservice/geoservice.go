@@ -4,10 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"geoservice-swagger/proxy/reverse"
 	"github.com/ekomobile/dadata/v2/api/suggest"
 	"github.com/ekomobile/dadata/v2/client"
-	"github.com/go-chi/chi/v5"
 	"net/http"
 	"net/url"
 	"strings"
@@ -19,7 +17,6 @@ type GeoProvider interface {
 }
 
 type GeoService struct {
-	addr      string
 	api       *suggest.Api
 	apiKey    string
 	secretKey string
@@ -38,7 +35,7 @@ type RequestAddressGeocode struct {
 	Lng string `json:"lng"`
 }
 
-func NewGeoService(apiKey, secretKey, addr string) *GeoService {
+func NewGeoService(apiKey, secretKey string) *GeoService {
 	var err error
 	endpointUrl, err := url.Parse("https://suggestions.dadata.ru/suggestions/api/4_1/rs/")
 	if err != nil {
@@ -55,7 +52,6 @@ func NewGeoService(apiKey, secretKey, addr string) *GeoService {
 	}
 
 	return &GeoService{
-		addr:      addr,
 		api:       &api,
 		apiKey:    apiKey,
 		secretKey: secretKey,
@@ -122,17 +118,29 @@ func (g *GeoService) GeoCode(lat, lng string) ([]*Address, error) {
 	return res, nil
 }
 
+// HandleAddressSearch
+// @Summary Search by street name
+// @Description Return a list of addresses provided street name
+// @Tags address
+// @Accept json
+// @Produce json
+// @Param query body RequestAddressSearch true "street name"
+// @Success 200 {object} ResponseAddress
+// @Failure 400 {string} string "bad request"
+// @Failure 500 {string} string "internal error"
+// @Router /api/address/search [post]
 func (g *GeoService) HandleAddressSearch(w http.ResponseWriter, r *http.Request) {
 	var req RequestAddressSearch
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil || req.Query == "" {
-		w.WriteHeader(http.StatusBadRequest)
+	json.NewDecoder(r.Body).Decode(&req)
+
+	if req.Query == "" {
+		http.Error(w, "bad query", http.StatusBadRequest)
 		return
 	}
 
 	addresses, err := g.AddressSearch(req.Query)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -140,40 +148,32 @@ func (g *GeoService) HandleAddressSearch(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(ResponseAddress{Addresses: addresses})
 }
 
+// HandleAddressGeocode
+// @Summary Search by coordinates
+// @Description Return a list of addresses provided geo coordinates
+// @Tags address
+// @Accept json
+// @Produce json
+// @Param query body RequestAddressGeocode true "coordinates"
+// @Success 200 {object} ResponseAddress
+// @Failure 400 {string} string "bad request"
+// @Failure 500 {string} string "internal error"
+// @Router /api/address/geocode [post]
 func (g *GeoService) HandleAddressGeocode(w http.ResponseWriter, r *http.Request) {
 	var req RequestAddressGeocode
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil || req.Lat == "" || req.Lng == "" {
-		w.WriteHeader(http.StatusBadRequest)
+	json.NewDecoder(r.Body).Decode(&req)
+
+	if req.Lng == "" || req.Lat == "" {
+		http.Error(w, "bad query", http.StatusBadRequest)
 		return
 	}
 
 	addresses, err := g.GeoCode(req.Lat, req.Lng)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(ResponseAddress{Addresses: addresses})
-}
-
-func (g *GeoService) ListenAndServe() error {
-
-	r := chi.NewRouter()
-
-	proxy := reverse.NewReverseProxy("hugo", "1313")
-	r.Use(proxy.ReverseProxy)
-
-	r.Route("/api/address", func(r chi.Router) {
-		r.Post("/search", g.HandleAddressSearch)
-		r.Post("/geocode", g.HandleAddressGeocode)
-	})
-
-	r.Get("/api", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(200)
-		w.Write([]byte("Hello from API"))
-	})
-
-	return http.ListenAndServe(g.addr, r)
 }

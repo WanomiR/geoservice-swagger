@@ -6,6 +6,7 @@ WORKDIR /app
 
 # Копируем исходники приложения в рабочую директорию
 COPY . .
+
 # Скачиваем все зависимости
 RUN go mod init proxy && go mod tidy
 

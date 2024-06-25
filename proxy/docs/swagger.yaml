@@ -1,0 +1,105 @@
+basePath: /
+definitions:
+  geoservice.Address:
+    properties:
+      city:
+        type: string
+      house:
+        type: string
+      lat:
+        type: string
+      lon:
+        type: string
+      street:
+        type: string
+    type: object
+  geoservice.RequestAddressGeocode:
+    properties:
+      lat:
+        type: string
+      lng:
+        type: string
+    type: object
+  geoservice.RequestAddressSearch:
+    properties:
+      query:
+        type: string
+    type: object
+  geoservice.ResponseAddress:
+    properties:
+      addresses:
+        items:
+          $ref: '#/definitions/geoservice.Address'
+        type: array
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact: {}
+  description: Find matching addresses by street name or coordinates
+  title: Geoservice API
+  version: "1.0"
+paths:
+  /api/address/geocode:
+    post:
+      consumes:
+      - application/json
+      description: Return a list of addresses provided geo coordinates
+      parameters:
+      - description: coordinates
+        in: body
+        name: query
+        required: true
+        schema:
+          $ref: '#/definitions/geoservice.RequestAddressGeocode'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/geoservice.ResponseAddress'
+        "400":
+          description: bad request
+          schema:
+            type: string
+        "500":
+          description: internal error
+          schema:
+            type: string
+      summary: Search by coordinates
+      tags:
+      - address
+  /api/address/search:
+    post:
+      consumes:
+      - application/json
+      description: Return a list of addresses provided street name
+      parameters:
+      - description: street name
+        in: body
+        name: query
+        required: true
+        schema:
+          $ref: '#/definitions/geoservice.RequestAddressSearch'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/geoservice.ResponseAddress'
+        "400":
+          description: bad request
+          schema:
+            type: string
+        "500":
+          description: internal error
+          schema:
+            type: string
+      summary: Search by street name
+      tags:
+      - address
+swagger: "2.0"
