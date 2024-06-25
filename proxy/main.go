@@ -31,7 +31,7 @@ func main() {
 
 	apiKey := os.Getenv("DADATA_API_KEY")
 	secretKey := os.Getenv("DADATA_SECRET_KEY")
-	addr := os.Getenv("ADDR")
+	port := os.Getenv("PORT")
 
 	g := geoservice.NewGeoService(apiKey, secretKey)
 
@@ -40,19 +40,19 @@ func main() {
 	proxy := reverse.NewReverseProxy("hugo", "1313")
 	r.Use(proxy.ReverseProxy)
 
-	r.Route("/api/address", func(r chi.Router) {
-		r.Post("/search", g.HandleAddressSearch)
-		r.Post("/geocode", g.HandleAddressGeocode)
-	})
-
 	r.Get("/api", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
 		w.Write([]byte("Hello from API"))
 	})
 
+	r.Route("/api/address", func(r chi.Router) {
+		r.Post("/search", g.HandleAddressSearch)
+		r.Post("/geocode", g.HandleAddressGeocode)
+	})
+
 	r.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost"+addr+"/swagger/doc.json"),
+		httpSwagger.URL("http://localhost"+port+"/swagger/doc.json"),
 	))
 
-	log.Fatal(http.ListenAndServe(addr, r))
+	log.Fatal(http.ListenAndServe(port, r))
 }
