@@ -7,9 +7,9 @@
         "version": "1.0"
     },
     "host": "localhost:8080",
-    "basePath": "/",
+    "basePath": "/api",
     "paths": {
-        "/api/address/geocode": {
+        "/address/geocode": {
             "post": {
                 "description": "Return a list of addresses provided geo coordinates",
                 "consumes": [
@@ -55,7 +55,7 @@
                 }
             }
         },
-        "/api/address/search": {
+        "/address/search": {
             "post": {
                 "description": "Return a list of addresses provided street name",
                 "consumes": [
@@ -127,10 +127,12 @@
             "type": "object",
             "properties": {
                 "lat": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "55.753214"
                 },
                 "lng": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "37.642589"
                 }
             }
         },
@@ -138,7 +140,8 @@
             "type": "object",
             "properties": {
                 "query": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Подкопаевский переулок"
                 }
             }
         },

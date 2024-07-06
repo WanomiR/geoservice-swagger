@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/address/geocode": {
+        "/address/geocode": {
             "post": {
                 "description": "Return a list of addresses provided geo coordinates",
                 "consumes": [
@@ -61,7 +61,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/address/search": {
+        "/address/search": {
             "post": {
                 "description": "Return a list of addresses provided street name",
                 "consumes": [
@@ -133,10 +133,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "lat": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "55.753214"
                 },
                 "lng": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "37.642589"
                 }
             }
         },
@@ -144,7 +146,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "query": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Подкопаевский переулок"
                 }
             }
         },
@@ -170,7 +173,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
-	BasePath:         "/",
+	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "Geoservice API",
 	Description:      "Find matching addresses by street name or coordinates",

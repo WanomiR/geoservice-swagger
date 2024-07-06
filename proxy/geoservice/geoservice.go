@@ -23,7 +23,7 @@ type GeoService struct {
 }
 
 type RequestAddressSearch struct {
-	Query string `json:"query"`
+	Query string `json:"query" example:"Подкопаевский переулок"`
 }
 
 type ResponseAddress struct {
@@ -31,8 +31,8 @@ type ResponseAddress struct {
 }
 
 type RequestAddressGeocode struct {
-	Lat string `json:"lat"`
-	Lng string `json:"lng"`
+	Lat string `json:"lat" example:"55.753214"`
+	Lng string `json:"lng" example:"37.642589"`
 }
 
 func NewGeoService(apiKey, secretKey string) *GeoService {
@@ -128,7 +128,7 @@ func (g *GeoService) GeoCode(lat, lng string) ([]*Address, error) {
 // @Success 200 {object} ResponseAddress
 // @Failure 400 {string} string "bad request"
 // @Failure 500 {string} string "internal error"
-// @Router /api/address/search [post]
+// @Router /address/search [post]
 func (g *GeoService) HandleAddressSearch(w http.ResponseWriter, r *http.Request) {
 	var req RequestAddressSearch
 	json.NewDecoder(r.Body).Decode(&req)
@@ -158,7 +158,7 @@ func (g *GeoService) HandleAddressSearch(w http.ResponseWriter, r *http.Request)
 // @Success 200 {object} ResponseAddress
 // @Failure 400 {string} string "bad request"
 // @Failure 500 {string} string "internal error"
-// @Router /api/address/geocode [post]
+// @Router /address/geocode [post]
 func (g *GeoService) HandleAddressGeocode(w http.ResponseWriter, r *http.Request) {
 	var req RequestAddressGeocode
 	json.NewDecoder(r.Body).Decode(&req)

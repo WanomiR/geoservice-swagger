@@ -1,4 +1,4 @@
-basePath: /
+basePath: /api
 definitions:
   geoservice.Address:
     properties:
@@ -16,13 +16,16 @@ definitions:
   geoservice.RequestAddressGeocode:
     properties:
       lat:
+        example: "55.753214"
         type: string
       lng:
+        example: "37.642589"
         type: string
     type: object
   geoservice.RequestAddressSearch:
     properties:
       query:
+        example: Подкопаевский переулок
         type: string
     type: object
   geoservice.ResponseAddress:
@@ -42,7 +45,7 @@ info:
   title: Geoservice API
   version: "1.0"
 paths:
-  /api/address/geocode:
+  /address/geocode:
     post:
       consumes:
       - application/json
@@ -72,7 +75,7 @@ paths:
       summary: Search by coordinates
       tags:
       - address
-  /api/address/search:
+  /address/search:
     post:
       consumes:
       - application/json

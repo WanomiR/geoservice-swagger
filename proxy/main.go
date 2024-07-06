@@ -17,7 +17,7 @@ import (
 // @description Find matching addresses by street name or coordinates
 
 // @host localhost:8080
-// @BasePath /
+// @BasePath /api
 
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
