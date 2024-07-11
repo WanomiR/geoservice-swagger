@@ -120,6 +120,7 @@ func (g *GeoService) GeoCode(lat, lng string) ([]*Address, error) {
 
 // HandleAddressSearch
 // @Summary Search by street name
+// @Security ApiKeyAuth
 // @Description Return a list of addresses provided street name
 // @Tags address
 // @Accept json
@@ -128,7 +129,7 @@ func (g *GeoService) GeoCode(lat, lng string) ([]*Address, error) {
 // @Success 200 {object} ResponseAddress
 // @Failure 400 {string} string "bad request"
 // @Failure 500 {string} string "internal error"
-// @Router /address/search [post]
+// @Router /api/address/search [post]
 func (g *GeoService) HandleAddressSearch(w http.ResponseWriter, r *http.Request) {
 	var req RequestAddressSearch
 	json.NewDecoder(r.Body).Decode(&req)
@@ -150,6 +151,7 @@ func (g *GeoService) HandleAddressSearch(w http.ResponseWriter, r *http.Request)
 
 // HandleAddressGeocode
 // @Summary Search by coordinates
+// @Security ApiKeyAuth
 // @Description Return a list of addresses provided geo coordinates
 // @Tags address
 // @Accept json
@@ -158,7 +160,7 @@ func (g *GeoService) HandleAddressSearch(w http.ResponseWriter, r *http.Request)
 // @Success 200 {object} ResponseAddress
 // @Failure 400 {string} string "bad request"
 // @Failure 500 {string} string "internal error"
-// @Router /address/geocode [post]
+// @Router /api/address/geocode [post]
 func (g *GeoService) HandleAddressGeocode(w http.ResponseWriter, r *http.Request) {
 	var req RequestAddressGeocode
 	json.NewDecoder(r.Body).Decode(&req)
