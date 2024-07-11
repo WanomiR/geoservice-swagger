@@ -45,29 +45,53 @@ func NewUserAuth(algorithm, secret string) *UserAuth {
 // @Produce json
 // @Param input body User true "user credentials"
 // @Success 201 {object} JSONResponse
-// @Failure 500 {object} JSONResponse
+// @Failure 400 {object} JSONResponse
 // @Router /api/register [post]
 func (ua *UserAuth) RegisterUser(w http.ResponseWriter, r *http.Request) {
 	var user User
 	w.Header().Set("Content-Type", "application/json")
 
-	err := json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
+	json.NewDecoder(r.Body).Decode(&user)
+	defer r.Body.Close()
+
+	if len(user.Password) == 0 || len(user.Email) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
 
 		resp := JSONResponse{
 			Code:    http.StatusBadRequest,
-			Message: err.Error(),
+			Message: "EOF",
 		}
 		json.NewEncoder(w).Encode(resp)
 		return
 	}
-	defer r.Body.Close()
+
+	if len(user.Password) < 3 || len(user.Password) > 32 {
+		w.WriteHeader(http.StatusBadRequest)
+
+		resp := JSONResponse{
+			Code:    http.StatusBadRequest,
+			Message: "password must be between 3 and 32 characters",
+		}
+		json.NewEncoder(w).Encode(resp)
+		return
+	}
+
+	if len(user.Email) < 5 || len(user.Email) > 32 {
+		w.WriteHeader(http.StatusBadRequest)
+
+		resp := JSONResponse{
+			Code:    http.StatusBadRequest,
+			Message: "email must be between 5 and 32 characters",
+		}
+		json.NewEncoder(w).Encode(resp)
+		return
+	}
 
 	encryptedPassword, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	ua.User.Password = string(encryptedPassword)
 	ua.User.Email = user.Email
 
+	w.WriteHeader(http.StatusCreated)
 	resp := JSONResponse{
 		Code:    http.StatusCreated,
 		Message: "user registered",
@@ -89,34 +113,16 @@ func (ua *UserAuth) Authenticate(w http.ResponseWriter, r *http.Request) {
 	var user User
 	w.Header().Set("Content-Type", "application/json")
 
-	err := json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-
-		resp := JSONResponse{
-			Code:    http.StatusBadRequest,
-			Message: err.Error(),
-		}
-		json.NewEncoder(w).Encode(resp)
-		return
-	}
+	json.NewDecoder(r.Body).Decode(&user)
 	defer r.Body.Close()
 
-	err = bcrypt.CompareHashAndPassword([]byte(ua.User.Password), []byte(user.Password))
+	err := bcrypt.CompareHashAndPassword([]byte(ua.User.Password), []byte(user.Password))
 
 	if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) || ua.User.Email != user.Email {
 		w.WriteHeader(http.StatusOK)
 		resp := JSONResponse{
 			Code:    http.StatusOK,
 			Message: "invalid credentials",
-		}
-		json.NewEncoder(w).Encode(resp)
-		return
-	} else if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		resp := JSONResponse{
-			Code:    http.StatusInternalServerError,
-			Message: err.Error(),
 		}
 		json.NewEncoder(w).Encode(resp)
 		return

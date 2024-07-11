@@ -194,8 +194,8 @@ const docTemplate = `{
                             "$ref": "#/definitions/auth.JSONResponse"
                         }
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/auth.JSONResponse"
                         }

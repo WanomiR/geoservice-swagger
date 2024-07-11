@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/jwtauth/v5"
 	"github.com/joho/godotenv"
 	"github.com/swaggo/http-swagger"
 	"log"
@@ -13,10 +12,6 @@ import (
 	"proxy/geoservice"
 	"proxy/reverse"
 )
-
-type Claims map[string]any
-
-var tokenAuth *jwtauth.JWTAuth
 
 // @title Geoservice API
 // @version 2.0.0
@@ -37,8 +32,6 @@ func main() {
 	}
 
 	jwtSecret := os.Getenv("JWT_SECRET")
-	tokenAuth = jwtauth.New("HS256", []byte(jwtSecret), nil)
-
 	apiKey := os.Getenv("DADATA_API_KEY")
 	secretKey := os.Getenv("DADATA_SECRET_KEY")
 	port := os.Getenv("PORT")

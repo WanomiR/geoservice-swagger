@@ -16,7 +16,7 @@ var geoservice *GeoService
 func init() {
 	err := godotenv.Load("../.env")
 	if err != nil {
-		log.Fatal("Error loading .env file", err)
+		log.Fatal("error loading .env file", err)
 	}
 
 	apiKey := os.Getenv("DADATA_API_KEY")
