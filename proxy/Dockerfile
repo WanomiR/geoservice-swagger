@@ -1,5 +1,5 @@
 # Используем официальный образ Go как базовый
-FROM golang:1.19-alpine as builder
+FROM golang:1.22-alpine as builder
 
 # Устанавливаем рабочую директорию внутри контейнера
 WORKDIR /app
@@ -19,6 +19,7 @@ FROM alpine:latest
 # Добавляем исполняемый файл из первой стадии в корневую директорию контейнера
 COPY --from=builder /app/main /main
 COPY --from=builder /app/.env /.env
+COPY --from=builder /app/docs /docs
 
 # Открываем порт 8080
 EXPOSE 8080

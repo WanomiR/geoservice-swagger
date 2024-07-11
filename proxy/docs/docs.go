@@ -17,6 +17,11 @@ const docTemplate = `{
     "paths": {
         "/api/address/geocode": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Return a list of addresses provided geo coordinates",
                 "consumes": [
                     "application/json"
@@ -63,6 +68,11 @@ const docTemplate = `{
         },
         "/api/address/search": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Return a list of addresses provided street name",
                 "consumes": [
                     "application/json"
@@ -106,9 +116,126 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/login": {
+            "post": {
+                "description": "Authenticate user provided their email and password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "authenticate user",
+                "parameters": [
+                    {
+                        "description": "user credentials",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.JSONResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/auth.JSONResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/auth.JSONResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/register": {
+            "post": {
+                "description": "Register new user provided email address and passport",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "register user",
+                "parameters": [
+                    {
+                        "description": "user credentials",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/auth.JSONResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/auth.JSONResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "auth.JSONResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 400
+                },
+                "data": {},
+                "message": {
+                    "type": "string",
+                    "example": "status bad request"
+                }
+            }
+        },
+        "auth.User": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "admin@example.com"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "password"
+                }
+            }
+        },
         "geoservice.Address": {
             "type": "object",
             "properties": {
@@ -133,10 +260,12 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "lat": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "55.753214"
                 },
                 "lng": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "37.642589"
                 }
             }
         },
@@ -144,7 +273,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "query": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Подкопаевский переулок"
                 }
             }
         },
@@ -160,20 +290,23 @@ const docTemplate = `{
             }
         }
     },
-    "externalDocs": {
-        "description": "OpenAPI",
-        "url": "https://swagger.io/resources/open-api/"
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "2.0.0",
 	Host:             "localhost:8080",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Geoservice API",
-	Description:      "Find matching addresses by street name or coordinates",
+	Description:      "Geoservice with swagger docs and authentication",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

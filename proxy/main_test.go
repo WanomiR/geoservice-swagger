@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 )
 
 const uriBase = "http://localhost:8080"
@@ -43,6 +44,8 @@ func TestMainFunc(t *testing.T) {
 	}
 
 	go main()
+
+	time.Sleep(3 * time.Second) // give server some time to fire up
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {

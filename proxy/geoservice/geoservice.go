@@ -23,7 +23,7 @@ type GeoService struct {
 }
 
 type RequestAddressSearch struct {
-	Query string `json:"query"`
+	Query string `json:"query" example:"Подкопаевский переулок"`
 }
 
 type ResponseAddress struct {
@@ -31,8 +31,8 @@ type ResponseAddress struct {
 }
 
 type RequestAddressGeocode struct {
-	Lat string `json:"lat"`
-	Lng string `json:"lng"`
+	Lat string `json:"lat" example:"55.753214"`
+	Lng string `json:"lng" example:"37.642589"`
 }
 
 func NewGeoService(apiKey, secretKey string) *GeoService {
@@ -120,6 +120,7 @@ func (g *GeoService) GeoCode(lat, lng string) ([]*Address, error) {
 
 // HandleAddressSearch
 // @Summary Search by street name
+// @Security ApiKeyAuth
 // @Description Return a list of addresses provided street name
 // @Tags address
 // @Accept json
@@ -150,6 +151,7 @@ func (g *GeoService) HandleAddressSearch(w http.ResponseWriter, r *http.Request)
 
 // HandleAddressGeocode
 // @Summary Search by coordinates
+// @Security ApiKeyAuth
 // @Description Return a list of addresses provided geo coordinates
 // @Tags address
 // @Accept json

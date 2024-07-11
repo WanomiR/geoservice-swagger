@@ -1,5 +1,27 @@
 basePath: /
 definitions:
+  auth.JSONResponse:
+    properties:
+      code:
+        example: 400
+        type: integer
+      data: {}
+      message:
+        example: status bad request
+        type: string
+    type: object
+  auth.User:
+    properties:
+      email:
+        example: admin@example.com
+        type: string
+      password:
+        example: password
+        type: string
+    required:
+    - email
+    - password
+    type: object
   geoservice.Address:
     properties:
       city:
@@ -16,13 +38,16 @@ definitions:
   geoservice.RequestAddressGeocode:
     properties:
       lat:
+        example: "55.753214"
         type: string
       lng:
+        example: "37.642589"
         type: string
     type: object
   geoservice.RequestAddressSearch:
     properties:
       query:
+        example: Подкопаевский переулок
         type: string
     type: object
   geoservice.ResponseAddress:
@@ -32,15 +57,12 @@ definitions:
           $ref: '#/definitions/geoservice.Address'
         type: array
     type: object
-externalDocs:
-  description: OpenAPI
-  url: https://swagger.io/resources/open-api/
 host: localhost:8080
 info:
   contact: {}
-  description: Find matching addresses by street name or coordinates
+  description: Geoservice with swagger docs and authentication
   title: Geoservice API
-  version: "1.0"
+  version: 2.0.0
 paths:
   /api/address/geocode:
     post:
@@ -69,6 +91,8 @@ paths:
           description: internal error
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Search by coordinates
       tags:
       - address
@@ -99,7 +123,70 @@ paths:
           description: internal error
           schema:
             type: string
+      security:
+      - ApiKeyAuth: []
       summary: Search by street name
       tags:
       - address
+  /api/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user provided their email and password
+      parameters:
+      - description: user credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/auth.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.JSONResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth.JSONResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/auth.JSONResponse'
+      summary: authenticate user
+      tags:
+      - auth
+  /api/register:
+    post:
+      consumes:
+      - application/json
+      description: Register new user provided email address and passport
+      parameters:
+      - description: user credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/auth.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/auth.JSONResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/auth.JSONResponse'
+      summary: register user
+      tags:
+      - auth
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
