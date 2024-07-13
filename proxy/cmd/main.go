@@ -7,10 +7,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"proxy/auth"
 	_ "proxy/docs"
-	"proxy/geoservice"
-	"proxy/reverse"
+	"proxy/internal/modules/auth"
+	"proxy/internal/modules/geoservice"
+	"proxy/internal/modules/reverse"
 )
 
 // @title Geoservice API

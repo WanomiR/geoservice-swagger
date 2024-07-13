@@ -40,7 +40,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/geoservice.RequestAddressGeocode"
+                            "$ref": "#/definitions/service.RequestAddressGeocode"
                         }
                     }
                 ],
@@ -48,7 +48,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/geoservice.ResponseAddress"
+                            "$ref": "#/definitions/service.ResponseAddress"
                         }
                     },
                     "400": {
@@ -91,7 +91,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/geoservice.RequestAddressSearch"
+                            "$ref": "#/definitions/service.RequestAddressSearch"
                         }
                     }
                 ],
@@ -99,7 +99,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/geoservice.ResponseAddress"
+                            "$ref": "#/definitions/service.ResponseAddress"
                         }
                     },
                     "400": {
@@ -236,7 +236,7 @@ const docTemplate = `{
                 }
             }
         },
-        "geoservice.Address": {
+        "service.Address": {
             "type": "object",
             "properties": {
                 "city": {
@@ -256,7 +256,7 @@ const docTemplate = `{
                 }
             }
         },
-        "geoservice.RequestAddressGeocode": {
+        "service.RequestAddressGeocode": {
             "type": "object",
             "properties": {
                 "lat": {
@@ -269,7 +269,7 @@ const docTemplate = `{
                 }
             }
         },
-        "geoservice.RequestAddressSearch": {
+        "service.RequestAddressSearch": {
             "type": "object",
             "properties": {
                 "query": {
@@ -278,13 +278,13 @@ const docTemplate = `{
                 }
             }
         },
-        "geoservice.ResponseAddress": {
+        "service.ResponseAddress": {
             "type": "object",
             "properties": {
                 "addresses": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/geoservice.Address"
+                        "$ref": "#/definitions/service.Address"
                     }
                 }
             }

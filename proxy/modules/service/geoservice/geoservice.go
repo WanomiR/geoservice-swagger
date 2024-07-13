@@ -11,11 +11,6 @@ import (
 	"strings"
 )
 
-type GeoProvider interface {
-	AddressSearch(input string) ([]*Address, error)
-	GeoCode(lat, lng string) ([]*Address, error)
-}
-
 type GeoService struct {
 	api       *suggest.Api
 	apiKey    string
