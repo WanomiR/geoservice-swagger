@@ -4,12 +4,12 @@ import (
 	"errors"
 	"golang.org/x/crypto/bcrypt"
 	"proxy/internal/entities"
-  "sync"
+	"sync"
 )
 
 type MapDBRepo struct {
 	store map[string]string
-  m     sync.RWMutex
+	m     sync.RWMutex
 }
 
 func NewMapDBRepo(initUsers ...entities.User) *MapDBRepo {
@@ -20,12 +20,12 @@ func NewMapDBRepo(initUsers ...entities.User) *MapDBRepo {
 		store[user.Email] = string(password)
 	}
 
-  return &MapDBRepo{store: store}
+	return &MapDBRepo{store: store}
 }
 
 func (db *MapDBRepo) GetUserByEmail(userEmail string) (entities.User, error) {
-  db.m.RLock()  // block for writing
-  defer db.m.RUnlock()
+	db.m.RLock() // block for writing
+	defer db.m.RUnlock()
 
 	for email, password := range db.store {
 		if email == userEmail {
@@ -36,8 +36,8 @@ func (db *MapDBRepo) GetUserByEmail(userEmail string) (entities.User, error) {
 }
 
 func (db *MapDBRepo) InsertUser(user entities.User) error {
-  db.m.Lock()  // blcok for reading and wriging
-  defer db.m.Unlock()
+	db.m.Lock() // block for reading and writing
+	defer db.m.Unlock()
 
 	db.store[user.Email] = user.Password
 
