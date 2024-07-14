@@ -2,6 +2,7 @@ package app
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 	httpSwagger "github.com/swaggo/http-swagger"
@@ -45,7 +46,7 @@ func NewApp() (*App, error) {
 }
 
 func (a *App) Run() error {
-	fmt.Println("listening on port " + a.config.port)
+	fmt.Println(color.RedString("listening on port: ") + color.GreenString("%+v", a.config.port))
 	return http.ListenAndServe(":"+a.config.port, a.routes())
 }
 
