@@ -1,16 +1,26 @@
 basePath: /
 definitions:
-  auth.JSONResponse:
+  controller.AddressGeocodeRequestBody:
     properties:
-      code:
-        example: 400
-        type: integer
-      data: {}
-      message:
-        example: status bad request
+      lat:
+        example: "55.753214"
         type: string
+      lng:
+        example: "37.642589"
+        type: string
+    required:
+    - lat
+    - lng
     type: object
-  auth.User:
+  controller.AddressSearchRequestBody:
+    properties:
+      query:
+        example: Подкопаевский переулок
+        type: string
+    required:
+    - query
+    type: object
+  entities.User:
     properties:
       email:
         example: admin@example.com
@@ -22,40 +32,13 @@ definitions:
     - email
     - password
     type: object
-  geoservice.Address:
+  readresponder.JSONResponse:
     properties:
-      city:
+      data: {}
+      error:
+        type: boolean
+      message:
         type: string
-      house:
-        type: string
-      lat:
-        type: string
-      lon:
-        type: string
-      street:
-        type: string
-    type: object
-  geoservice.RequestAddressGeocode:
-    properties:
-      lat:
-        example: "55.753214"
-        type: string
-      lng:
-        example: "37.642589"
-        type: string
-    type: object
-  geoservice.RequestAddressSearch:
-    properties:
-      query:
-        example: Подкопаевский переулок
-        type: string
-    type: object
-  geoservice.ResponseAddress:
-    properties:
-      addresses:
-        items:
-          $ref: '#/definitions/geoservice.Address'
-        type: array
     type: object
 host: localhost:8080
 info:
@@ -75,22 +58,22 @@ paths:
         name: query
         required: true
         schema:
-          $ref: '#/definitions/geoservice.RequestAddressGeocode'
+          $ref: '#/definitions/controller.AddressGeocodeRequestBody'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/geoservice.ResponseAddress'
+            $ref: '#/definitions/readresponder.JSONResponse'
         "400":
-          description: bad request
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/readresponder.JSONResponse'
         "500":
-          description: internal error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/readresponder.JSONResponse'
       security:
       - ApiKeyAuth: []
       summary: Search by coordinates
@@ -107,22 +90,22 @@ paths:
         name: query
         required: true
         schema:
-          $ref: '#/definitions/geoservice.RequestAddressSearch'
+          $ref: '#/definitions/controller.AddressSearchRequestBody'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/geoservice.ResponseAddress'
+            $ref: '#/definitions/readresponder.JSONResponse'
         "400":
-          description: bad request
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/readresponder.JSONResponse'
         "500":
-          description: internal error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/readresponder.JSONResponse'
       security:
       - ApiKeyAuth: []
       summary: Search by street name
@@ -139,22 +122,22 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/auth.User'
+          $ref: '#/definitions/entities.User'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.JSONResponse'
+            $ref: '#/definitions/readresponder.JSONResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/auth.JSONResponse'
+            $ref: '#/definitions/readresponder.JSONResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/auth.JSONResponse'
+            $ref: '#/definitions/readresponder.JSONResponse'
       summary: authenticate user
       tags:
       - auth
@@ -169,19 +152,19 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/auth.User'
+          $ref: '#/definitions/entities.User'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/auth.JSONResponse'
+            $ref: '#/definitions/readresponder.JSONResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/auth.JSONResponse'
-      summary: register user
+            $ref: '#/definitions/readresponder.JSONResponse'
+      summary: register new user
       tags:
       - auth
 securityDefinitions:

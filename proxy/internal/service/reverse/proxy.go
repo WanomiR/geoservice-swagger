@@ -8,13 +8,13 @@ import (
 	"strings"
 )
 
-type ReverseProxy struct {
+type ProxyReverse struct {
 	host string
 	port string
 }
 
-func NewReverseProxy(host, port string) *ReverseProxy {
-	return &ReverseProxy{
+func NewProxyReverse(host, port string) *ProxyReverse {
+	return &ProxyReverse{
 		host: host,
 		port: port,
 	}
@@ -23,7 +23,7 @@ func NewReverseProxy(host, port string) *ReverseProxy {
 // localhost:1313/static -> hugo
 // localhost:1313/api -> api
 
-func (rp *ReverseProxy) ReverseProxy(next http.Handler) http.Handler {
+func (rp *ProxyReverse) ProxyReverse(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/api") || strings.HasPrefix(r.URL.Path, "/swagger") {
 			next.ServeHTTP(w, r)
