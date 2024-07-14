@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log"
 	_ "proxy/docs"
 	"proxy/internal/app"
@@ -19,7 +18,7 @@ import (
 // @name Authorization
 func main() {
 
-	a, err := app.NewApp(context.Background())
+	a, err := app.NewApp()
 	if err != nil {
 		log.Fatalf("failed to init app: %v", err.Error())
 	}

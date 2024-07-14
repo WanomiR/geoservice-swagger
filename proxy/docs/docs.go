@@ -40,7 +40,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/geoservice.RequestAddressGeocode"
+                            "$ref": "#/definitions/controller.AddressGeocodeRequestBody"
                         }
                     }
                 ],
@@ -48,19 +48,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/geoservice.ResponseAddress"
+                            "$ref": "#/definitions/readresponder.JSONResponse"
                         }
                     },
                     "400": {
-                        "description": "bad request",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/readresponder.JSONResponse"
                         }
                     },
                     "500": {
-                        "description": "internal error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/readresponder.JSONResponse"
                         }
                     }
                 }
@@ -91,7 +91,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/geoservice.RequestAddressSearch"
+                            "$ref": "#/definitions/controller.AddressSearchRequestBody"
                         }
                     }
                 ],
@@ -99,19 +99,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/geoservice.ResponseAddress"
+                            "$ref": "#/definitions/readresponder.JSONResponse"
                         }
                     },
                     "400": {
-                        "description": "bad request",
+                        "description": "Bad Request",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/readresponder.JSONResponse"
                         }
                     },
                     "500": {
-                        "description": "internal error",
+                        "description": "Internal Server Error",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/readresponder.JSONResponse"
                         }
                     }
                 }
@@ -205,6 +205,35 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controller.AddressGeocodeRequestBody": {
+            "type": "object",
+            "required": [
+                "lat",
+                "lng"
+            ],
+            "properties": {
+                "lat": {
+                    "type": "string",
+                    "example": "55.753214"
+                },
+                "lng": {
+                    "type": "string",
+                    "example": "37.642589"
+                }
+            }
+        },
+        "controller.AddressSearchRequestBody": {
+            "type": "object",
+            "required": [
+                "query"
+            ],
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "example": "Подкопаевский переулок"
+                }
+            }
+        },
         "entities.User": {
             "type": "object",
             "required": [
@@ -219,59 +248,6 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "example": "password"
-                }
-            }
-        },
-        "geoservice.Address": {
-            "type": "object",
-            "properties": {
-                "city": {
-                    "type": "string"
-                },
-                "house": {
-                    "type": "string"
-                },
-                "lat": {
-                    "type": "string"
-                },
-                "lon": {
-                    "type": "string"
-                },
-                "street": {
-                    "type": "string"
-                }
-            }
-        },
-        "geoservice.RequestAddressGeocode": {
-            "type": "object",
-            "properties": {
-                "lat": {
-                    "type": "string",
-                    "example": "55.753214"
-                },
-                "lng": {
-                    "type": "string",
-                    "example": "37.642589"
-                }
-            }
-        },
-        "geoservice.RequestAddressSearch": {
-            "type": "object",
-            "properties": {
-                "query": {
-                    "type": "string",
-                    "example": "Подкопаевский переулок"
-                }
-            }
-        },
-        "geoservice.ResponseAddress": {
-            "type": "object",
-            "properties": {
-                "addresses": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/geoservice.Address"
-                    }
                 }
             }
         },

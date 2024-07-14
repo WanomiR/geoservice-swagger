@@ -3,38 +3,8 @@ package controller
 import (
 	"net/http"
 	"proxy/internal/entities"
-	"proxy/internal/service"
 	"proxy/utils/readresponder"
 )
-
-type UserControl struct {
-	readResponder readresponder.ReadResponder
-	authService   service.Authenticator
-}
-
-type UserControlOption func(*UserControl)
-
-func WithResponder(readResponder readresponder.ReadResponder) UserControlOption {
-	return func(c *UserControl) {
-		c.readResponder = readResponder
-	}
-}
-
-func WithAuthenticator(authService service.Authenticator) UserControlOption {
-	return func(c *UserControl) {
-		c.authService = authService
-	}
-}
-
-func NewUserControl(options ...UserControlOption) *UserControl {
-	controller := &UserControl{}
-
-	for _, option := range options {
-		option(controller)
-	}
-
-	return controller
-}
 
 // Register godoc
 // @Summary register new user
@@ -46,7 +16,7 @@ func NewUserControl(options ...UserControlOption) *UserControl {
 // @Success 201 {object} readresponder.JSONResponse
 // @Failure 400 {object} readresponder.JSONResponse
 // @Router /api/register [post]
-func (c *UserControl) Register(w http.ResponseWriter, r *http.Request) {
+func (c *AppController) Register(w http.ResponseWriter, r *http.Request) {
 	var user entities.User
 
 	if err := c.readResponder.ReadJSON(w, r, &user); err != nil {
@@ -67,8 +37,6 @@ func (c *UserControl) Register(w http.ResponseWriter, r *http.Request) {
 	c.readResponder.WriteJSON(w, http.StatusCreated, responseBody)
 }
 
-// TODO: continue with authentication
-
 // Authenticate godoc
 // @Summary authenticate user
 // @Description Authenticate user provided their email and password
@@ -79,7 +47,7 @@ func (c *UserControl) Register(w http.ResponseWriter, r *http.Request) {
 // @Success 200 {object} readresponder.JSONResponse
 // @Failure 400,500 {object} readresponder.JSONResponse
 // @Router /api/login [post]
-func (c *UserControl) Authenticate(w http.ResponseWriter, r *http.Request) {
+func (c *AppController) Authenticate(w http.ResponseWriter, r *http.Request) {
 	var user entities.User
 	if err := c.readResponder.ReadJSON(w, r, &user); err != nil {
 		c.readResponder.WriteJSONError(w, err)
@@ -99,8 +67,4 @@ func (c *UserControl) Authenticate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	c.readResponder.WriteJSON(w, http.StatusOK, resp)
-}
-
-func (c *UserControl) RequireAuthentication(next http.Handler) http.Handler {
-	return c.authService.RequireAuthentication(next)
 }

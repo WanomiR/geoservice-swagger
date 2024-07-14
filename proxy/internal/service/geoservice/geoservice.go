@@ -8,6 +8,7 @@ import (
 	"github.com/ekomobile/dadata/v2/client"
 	"net/http"
 	"net/url"
+	"proxy/internal/entities"
 	"strings"
 )
 
@@ -15,19 +16,6 @@ type GeoService struct {
 	api       *suggest.Api
 	apiKey    string
 	secretKey string
-}
-
-type RequestAddressSearch struct {
-	Query string `json:"query" example:"Подкопаевский переулок"`
-}
-
-type ResponseAddress struct {
-	Addresses []*Address `json:"addresses"`
-}
-
-type RequestAddressGeocode struct {
-	Lat string `json:"lat" example:"55.753214"`
-	Lng string `json:"lng" example:"37.642589"`
 }
 
 func NewGeoService(apiKey, secretKey string) *GeoService {
@@ -53,16 +41,8 @@ func NewGeoService(apiKey, secretKey string) *GeoService {
 	}
 }
 
-type Address struct {
-	City   string `json:"city"`
-	Street string `json:"street"`
-	House  string `json:"house"`
-	Lat    string `json:"lat"`
-	Lon    string `json:"lon"`
-}
-
-func (g *GeoService) AddressSearch(input string) ([]*Address, error) {
-	var res []*Address
+func (g *GeoService) AddressSearch(input string) ([]*entities.Address, error) {
+	var res []*entities.Address
 	rawRes, err := g.api.Address(context.Background(), &suggest.RequestParams{Query: input})
 	if err != nil {
 		return nil, err
@@ -72,13 +52,13 @@ func (g *GeoService) AddressSearch(input string) ([]*Address, error) {
 		if r.Data.City == "" || r.Data.Street == "" {
 			continue
 		}
-		res = append(res, &Address{City: r.Data.City, Street: r.Data.Street, House: r.Data.House, Lat: r.Data.GeoLat, Lon: r.Data.GeoLon})
+		res = append(res, &entities.Address{City: r.Data.City, Street: r.Data.Street, House: r.Data.House, Lat: r.Data.GeoLat, Lon: r.Data.GeoLon})
 	}
 
 	return res, nil
 }
 
-func (g *GeoService) GeoCode(lat, lng string) ([]*Address, error) {
+func (g *GeoService) GeoCode(lat, lng string) ([]*entities.Address, error) {
 	httpClient := &http.Client{}
 	var data = strings.NewReader(fmt.Sprintf(`{"lat": %s, "lon": %s}`, lat, lng))
 	req, err := http.NewRequest("POST", "https://suggestions.dadata.ru/suggestions/api/4_1/rs/geolocate/address", data)
@@ -98,9 +78,9 @@ func (g *GeoService) GeoCode(lat, lng string) ([]*Address, error) {
 	if err != nil {
 		return nil, err
 	}
-	var res []*Address
+	var res []*entities.Address
 	for _, r := range geoCode.Suggestions {
-		var address Address
+		var address entities.Address
 		address.City = string(r.Data.City)
 		address.Street = string(r.Data.Street)
 		address.House = r.Data.House
@@ -111,66 +91,4 @@ func (g *GeoService) GeoCode(lat, lng string) ([]*Address, error) {
 	}
 
 	return res, nil
-}
-
-// HandleAddressSearch
-// @Summary Search by street name
-// @Security ApiKeyAuth
-// @Description Return a list of addresses provided street name
-// @Tags address
-// @Accept json
-// @Produce json
-// @Param query body RequestAddressSearch true "street name"
-// @Success 200 {object} ResponseAddress
-// @Failure 400 {string} string "bad request"
-// @Failure 500 {string} string "internal error"
-// @Router /api/address/search [post]
-func (g *GeoService) HandleAddressSearch(w http.ResponseWriter, r *http.Request) {
-	var req RequestAddressSearch
-	json.NewDecoder(r.Body).Decode(&req)
-
-	if req.Query == "" {
-		http.Error(w, "bad query", http.StatusBadRequest)
-		return
-	}
-
-	addresses, err := g.AddressSearch(req.Query)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(ResponseAddress{Addresses: addresses})
-}
-
-// HandleAddressGeocode
-// @Summary Search by coordinates
-// @Security ApiKeyAuth
-// @Description Return a list of addresses provided geo coordinates
-// @Tags address
-// @Accept json
-// @Produce json
-// @Param query body RequestAddressGeocode true "coordinates"
-// @Success 200 {object} ResponseAddress
-// @Failure 400 {string} string "bad request"
-// @Failure 500 {string} string "internal error"
-// @Router /api/address/geocode [post]
-func (g *GeoService) HandleAddressGeocode(w http.ResponseWriter, r *http.Request) {
-	var req RequestAddressGeocode
-	json.NewDecoder(r.Body).Decode(&req)
-
-	if req.Lng == "" || req.Lat == "" {
-		http.Error(w, "bad query", http.StatusBadRequest)
-		return
-	}
-
-	addresses, err := g.GeoCode(req.Lat, req.Lng)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(ResponseAddress{Addresses: addresses})
 }

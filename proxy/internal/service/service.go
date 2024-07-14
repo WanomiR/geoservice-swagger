@@ -3,12 +3,11 @@ package service
 import (
 	"net/http"
 	"proxy/internal/entities"
-	"proxy/internal/service/geoservice"
 )
 
 type GeoProvider interface {
-	AddressSearch(input string) ([]*geoservice.Address, error)
-	GeoCode(lat, lng string) ([]*geoservice.Address, error)
+	AddressSearch(input string) ([]*entities.Address, error)
+	GeoCode(lat, lng string) ([]*entities.Address, error)
 }
 
 type Authenticator interface {
@@ -18,5 +17,5 @@ type Authenticator interface {
 }
 
 type ProxyReverser interface {
-	ProxyReverse(http.Handler) http.Handler
+	ProxyReverse(next http.Handler) http.Handler
 }

@@ -1,5 +1,25 @@
 basePath: /
 definitions:
+  controller.AddressGeocodeRequestBody:
+    properties:
+      lat:
+        example: "55.753214"
+        type: string
+      lng:
+        example: "37.642589"
+        type: string
+    required:
+    - lat
+    - lng
+    type: object
+  controller.AddressSearchRequestBody:
+    properties:
+      query:
+        example: Подкопаевский переулок
+        type: string
+    required:
+    - query
+    type: object
   entities.User:
     properties:
       email:
@@ -11,41 +31,6 @@ definitions:
     required:
     - email
     - password
-    type: object
-  geoservice.Address:
-    properties:
-      city:
-        type: string
-      house:
-        type: string
-      lat:
-        type: string
-      lon:
-        type: string
-      street:
-        type: string
-    type: object
-  geoservice.RequestAddressGeocode:
-    properties:
-      lat:
-        example: "55.753214"
-        type: string
-      lng:
-        example: "37.642589"
-        type: string
-    type: object
-  geoservice.RequestAddressSearch:
-    properties:
-      query:
-        example: Подкопаевский переулок
-        type: string
-    type: object
-  geoservice.ResponseAddress:
-    properties:
-      addresses:
-        items:
-          $ref: '#/definitions/geoservice.Address'
-        type: array
     type: object
   readresponder.JSONResponse:
     properties:
@@ -73,22 +58,22 @@ paths:
         name: query
         required: true
         schema:
-          $ref: '#/definitions/geoservice.RequestAddressGeocode'
+          $ref: '#/definitions/controller.AddressGeocodeRequestBody'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/geoservice.ResponseAddress'
+            $ref: '#/definitions/readresponder.JSONResponse'
         "400":
-          description: bad request
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/readresponder.JSONResponse'
         "500":
-          description: internal error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/readresponder.JSONResponse'
       security:
       - ApiKeyAuth: []
       summary: Search by coordinates
@@ -105,22 +90,22 @@ paths:
         name: query
         required: true
         schema:
-          $ref: '#/definitions/geoservice.RequestAddressSearch'
+          $ref: '#/definitions/controller.AddressSearchRequestBody'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/geoservice.ResponseAddress'
+            $ref: '#/definitions/readresponder.JSONResponse'
         "400":
-          description: bad request
+          description: Bad Request
           schema:
-            type: string
+            $ref: '#/definitions/readresponder.JSONResponse'
         "500":
-          description: internal error
+          description: Internal Server Error
           schema:
-            type: string
+            $ref: '#/definitions/readresponder.JSONResponse'
       security:
       - ApiKeyAuth: []
       summary: Search by street name

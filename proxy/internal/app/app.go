@@ -1,13 +1,20 @@
 package app
 
 import (
-	"context"
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"net/http"
 	"os"
+	"proxy/internal/controller"
+	"proxy/internal/entities"
+	"proxy/internal/repository/dbrepo"
+	"proxy/internal/service"
+	"proxy/internal/service/auth"
+	"proxy/internal/service/geoservice"
+	"proxy/internal/service/reverse"
+	"proxy/utils/readresponder"
 )
 
 type Config struct {
@@ -21,15 +28,16 @@ type Config struct {
 }
 
 type App struct {
-	serviceProvider *serviceProvider
-	config          Config
-	router          *chi.Mux
+	config       Config
+	proxyService service.ProxyReverser
+	authService  service.Authenticator
+	controller   controller.Controller
 }
 
-func NewApp(ctx context.Context) (*App, error) {
+func NewApp() (*App, error) {
 	a := &App{}
 
-	if err := a.initDeps(ctx); err != nil {
+	if err := a.init(); err != nil {
 		return nil, err
 	}
 
@@ -38,27 +46,10 @@ func NewApp(ctx context.Context) (*App, error) {
 
 func (a *App) Run() error {
 	fmt.Println("listening on port " + a.config.port)
-	return http.ListenAndServe(":"+a.config.port, a.router)
+	return http.ListenAndServe(":"+a.config.port, a.routes())
 }
 
-func (a *App) initDeps(ctx context.Context) error {
-	inits := []func(context.Context) error{
-		a.initConfig,
-		a.initServiceProvider,
-		a.initRoutes,
-	}
-
-	for _, init := range inits {
-		err := init(ctx)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (a *App) initConfig(_ context.Context) error {
+func (a *App) readConfig() error {
 	err := godotenv.Load(".env")
 	if err != nil {
 		return err
@@ -75,37 +66,52 @@ func (a *App) initConfig(_ context.Context) error {
 	return nil
 }
 
-func (a *App) initServiceProvider(_ context.Context) error {
-	a.serviceProvider = &serviceProvider{}
+func (a *App) init() error {
+
+	if err := a.readConfig(); err != nil {
+		return err
+	}
+
+	a.proxyService = reverse.NewProxyReverse(a.config.proxyHost, a.config.proxyPort)
+
+	db := dbrepo.NewMapDBRepo(entities.User{Email: "admin@example.com", Password: "password"})
+	a.authService = auth.NewUserAuth("HS256", a.config.jwtSecret, auth.WithDatabase(db))
+
+	rr := readresponder.NewReadRespond(readresponder.WithMaxBytes(1 << 20))
+	geo := geoservice.NewGeoService(a.config.apiKey, a.config.secretKey)
+
+	a.controller = controller.NewAppController(
+		controller.WithResponder(rr),
+		controller.WithAuthenticator(a.authService),
+		controller.WithGeoService(geo),
+	)
+
 	return nil
 }
 
-func (a *App) initRoutes(_ context.Context) error {
+func (a *App) routes() *chi.Mux {
 	r := chi.NewRouter()
-	proxy := a.serviceProvider.ProxyService(a.config.proxyHost, a.config.proxyPort)
 
-	r.Use(proxy.ProxyReverse)
+	r.Use(a.proxyService.ProxyReverse)
 
 	r.Route("/api", func(r chi.Router) {
-		r.Post("/register", a.serviceProvider.UserController(a.config.jwtSecret).Register)
-		r.Post("/login", a.serviceProvider.UserController(a.config.jwtSecret).Authenticate)
+		r.Post("/register", a.controller.Register)
+		r.Post("/login", a.controller.Authenticate)
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(200)
 			w.Write([]byte("Hello from API"))
 		})
 
-		//r.Route("/address", func(r chi.Router) {
-		//	r.Use(a.RequireAuthentication)
-		//	r.Post("/search", g.HandleAddressSearch)
-		//	r.Post("/geocode", g.HandleAddressGeocode)
-		//})
+		r.Route("/address", func(r chi.Router) {
+			r.Use(a.authService.RequireAuthentication)
+			r.Post("/search", a.controller.AddressSearch)
+			r.Post("/geocode", a.controller.AddressGeocode)
+		})
 	})
 
 	r.Get("/swagger/*", httpSwagger.Handler(
 		httpSwagger.URL(fmt.Sprintf("http://%s:%s/swagger/doc.json", a.config.host, a.config.port)),
 	))
 
-	a.router = r
-
-	return nil
+	return r
 }

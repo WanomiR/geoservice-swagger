@@ -24,12 +24,17 @@ func WithDatabase(db repository.DatabaseRepo) UserAuthOption {
 	}
 }
 
-func NewUserAuth(algorithm, secret string) *UserAuth {
+func NewUserAuth(algorithm, secret string, options ...UserAuthOption) *UserAuth {
 	tokenAuth := jwtauth.New(algorithm, []byte(secret), nil)
 
 	userAuth := &UserAuth{
 		tokenAuth: tokenAuth,
 	}
+
+	for _, option := range options {
+		option(userAuth)
+	}
+
 	return userAuth
 }
 
@@ -51,7 +56,7 @@ func (a *UserAuth) Register(user entities.User) error {
 	newUser.Password = string(encryptedPassword)
 	newUser.Email = user.Email
 
-	if err := a.DB.InsertUser(user); err != nil {
+	if err := a.DB.InsertUser(newUser); err != nil {
 		return err
 	}
 
