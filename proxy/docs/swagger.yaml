@@ -1,16 +1,6 @@
 basePath: /
 definitions:
-  auth.JSONResponse:
-    properties:
-      code:
-        example: 400
-        type: integer
-      data: {}
-      message:
-        example: status bad request
-        type: string
-    type: object
-  auth.User:
+  entities.User:
     properties:
       email:
         example: admin@example.com
@@ -56,6 +46,14 @@ definitions:
         items:
           $ref: '#/definitions/geoservice.Address'
         type: array
+    type: object
+  readresponder.JSONResponse:
+    properties:
+      data: {}
+      error:
+        type: boolean
+      message:
+        type: string
     type: object
 host: localhost:8080
 info:
@@ -139,22 +137,22 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/auth.User'
+          $ref: '#/definitions/entities.User'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.JSONResponse'
+            $ref: '#/definitions/readresponder.JSONResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/auth.JSONResponse'
+            $ref: '#/definitions/readresponder.JSONResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/auth.JSONResponse'
+            $ref: '#/definitions/readresponder.JSONResponse'
       summary: authenticate user
       tags:
       - auth
@@ -169,19 +167,19 @@ paths:
         name: input
         required: true
         schema:
-          $ref: '#/definitions/auth.User'
+          $ref: '#/definitions/entities.User'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/auth.JSONResponse'
+            $ref: '#/definitions/readresponder.JSONResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/auth.JSONResponse'
-      summary: register user
+            $ref: '#/definitions/readresponder.JSONResponse'
+      summary: register new user
       tags:
       - auth
 securityDefinitions:

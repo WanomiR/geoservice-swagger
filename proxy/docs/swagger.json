@@ -131,7 +131,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.User"
+                            "$ref": "#/definitions/entities.User"
                         }
                     }
                 ],
@@ -139,19 +139,19 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.JSONResponse"
+                            "$ref": "#/definitions/readresponder.JSONResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/auth.JSONResponse"
+                            "$ref": "#/definitions/readresponder.JSONResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/auth.JSONResponse"
+                            "$ref": "#/definitions/readresponder.JSONResponse"
                         }
                     }
                 }
@@ -169,7 +169,7 @@
                 "tags": [
                     "auth"
                 ],
-                "summary": "register user",
+                "summary": "register new user",
                 "parameters": [
                     {
                         "description": "user credentials",
@@ -177,7 +177,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.User"
+                            "$ref": "#/definitions/entities.User"
                         }
                     }
                 ],
@@ -185,13 +185,13 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/auth.JSONResponse"
+                            "$ref": "#/definitions/readresponder.JSONResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/auth.JSONResponse"
+                            "$ref": "#/definitions/readresponder.JSONResponse"
                         }
                     }
                 }
@@ -199,21 +199,7 @@
         }
     },
     "definitions": {
-        "auth.JSONResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 400
-                },
-                "data": {},
-                "message": {
-                    "type": "string",
-                    "example": "status bad request"
-                }
-            }
-        },
-        "auth.User": {
+        "entities.User": {
             "type": "object",
             "required": [
                 "email",
@@ -280,6 +266,18 @@
                     "items": {
                         "$ref": "#/definitions/geoservice.Address"
                     }
+                }
+            }
+        },
+        "readresponder.JSONResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
                 }
             }
         }

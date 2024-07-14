@@ -1,4 +1,4 @@
-package model
+package entities
 
 type User struct {
 	Email    string `json:"email" binding:"required" example:"admin@example.com"`

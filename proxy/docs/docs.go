@@ -40,7 +40,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.RequestAddressGeocode"
+                            "$ref": "#/definitions/geoservice.RequestAddressGeocode"
                         }
                     }
                 ],
@@ -48,7 +48,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.ResponseAddress"
+                            "$ref": "#/definitions/geoservice.ResponseAddress"
                         }
                     },
                     "400": {
@@ -91,7 +91,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/service.RequestAddressSearch"
+                            "$ref": "#/definitions/geoservice.RequestAddressSearch"
                         }
                     }
                 ],
@@ -99,7 +99,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/service.ResponseAddress"
+                            "$ref": "#/definitions/geoservice.ResponseAddress"
                         }
                     },
                     "400": {
@@ -137,7 +137,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.User"
+                            "$ref": "#/definitions/entities.User"
                         }
                     }
                 ],
@@ -145,19 +145,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.JSONResponse"
+                            "$ref": "#/definitions/readresponder.JSONResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/auth.JSONResponse"
+                            "$ref": "#/definitions/readresponder.JSONResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/auth.JSONResponse"
+                            "$ref": "#/definitions/readresponder.JSONResponse"
                         }
                     }
                 }
@@ -175,7 +175,7 @@ const docTemplate = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "register user",
+                "summary": "register new user",
                 "parameters": [
                     {
                         "description": "user credentials",
@@ -183,7 +183,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.User"
+                            "$ref": "#/definitions/entities.User"
                         }
                     }
                 ],
@@ -191,13 +191,13 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/auth.JSONResponse"
+                            "$ref": "#/definitions/readresponder.JSONResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/auth.JSONResponse"
+                            "$ref": "#/definitions/readresponder.JSONResponse"
                         }
                     }
                 }
@@ -205,21 +205,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "auth.JSONResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 400
-                },
-                "data": {},
-                "message": {
-                    "type": "string",
-                    "example": "status bad request"
-                }
-            }
-        },
-        "auth.User": {
+        "entities.User": {
             "type": "object",
             "required": [
                 "email",
@@ -236,7 +222,7 @@ const docTemplate = `{
                 }
             }
         },
-        "service.Address": {
+        "geoservice.Address": {
             "type": "object",
             "properties": {
                 "city": {
@@ -256,7 +242,7 @@ const docTemplate = `{
                 }
             }
         },
-        "service.RequestAddressGeocode": {
+        "geoservice.RequestAddressGeocode": {
             "type": "object",
             "properties": {
                 "lat": {
@@ -269,7 +255,7 @@ const docTemplate = `{
                 }
             }
         },
-        "service.RequestAddressSearch": {
+        "geoservice.RequestAddressSearch": {
             "type": "object",
             "properties": {
                 "query": {
@@ -278,14 +264,26 @@ const docTemplate = `{
                 }
             }
         },
-        "service.ResponseAddress": {
+        "geoservice.ResponseAddress": {
             "type": "object",
             "properties": {
                 "addresses": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/service.Address"
+                        "$ref": "#/definitions/geoservice.Address"
                     }
+                }
+            }
+        },
+        "readresponder.JSONResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {
+                    "type": "boolean"
+                },
+                "message": {
+                    "type": "string"
                 }
             }
         }

@@ -2,8 +2,8 @@ package service
 
 import (
 	"net/http"
-	"proxy/modules/model"
-	"proxy/modules/service/geoservice"
+	"proxy/internal/entities"
+	"proxy/internal/service/geoservice"
 )
 
 type GeoProvider interface {
@@ -11,9 +11,9 @@ type GeoProvider interface {
 	GeoCode(lat, lng string) ([]*geoservice.Address, error)
 }
 
-type UserAuthenticator interface {
-	Register(user model.User) error
-	Authenticate(user model.User) (string, error)
+type Authenticator interface {
+	Register(user entities.User) error
+	Authenticate(user entities.User) (string, error)
 	RequireAuthentication(http.Handler) http.Handler
 }
 
