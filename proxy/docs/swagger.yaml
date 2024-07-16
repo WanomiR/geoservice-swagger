@@ -1,6 +1,6 @@
 basePath: /
 definitions:
-  controller.AddressGeocodeRequestBody:
+  entities.AddressGeocode:
     properties:
       lat:
         example: "55.753214"
@@ -12,7 +12,7 @@ definitions:
     - lat
     - lng
     type: object
-  controller.AddressSearchRequestBody:
+  entities.AddressSearch:
     properties:
       query:
         example: Подкопаевский переулок
@@ -58,7 +58,7 @@ paths:
         name: query
         required: true
         schema:
-          $ref: '#/definitions/controller.AddressGeocodeRequestBody'
+          $ref: '#/definitions/entities.AddressGeocode'
       produces:
       - application/json
       responses:
@@ -68,10 +68,6 @@ paths:
             $ref: '#/definitions/readresponder.JSONResponse'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/readresponder.JSONResponse'
-        "500":
-          description: Internal Server Error
           schema:
             $ref: '#/definitions/readresponder.JSONResponse'
       security:
@@ -90,7 +86,7 @@ paths:
         name: query
         required: true
         schema:
-          $ref: '#/definitions/controller.AddressSearchRequestBody'
+          $ref: '#/definitions/entities.AddressSearch'
       produces:
       - application/json
       responses:
@@ -100,10 +96,6 @@ paths:
             $ref: '#/definitions/readresponder.JSONResponse'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/readresponder.JSONResponse'
-        "500":
-          description: Internal Server Error
           schema:
             $ref: '#/definitions/readresponder.JSONResponse'
       security:

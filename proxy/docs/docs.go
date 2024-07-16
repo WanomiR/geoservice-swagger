@@ -40,7 +40,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.AddressGeocodeRequestBody"
+                            "$ref": "#/definitions/entities.AddressGeocode"
                         }
                     }
                 ],
@@ -53,12 +53,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/readresponder.JSONResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/readresponder.JSONResponse"
                         }
@@ -91,7 +85,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.AddressSearchRequestBody"
+                            "$ref": "#/definitions/entities.AddressSearch"
                         }
                     }
                 ],
@@ -104,12 +98,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/readresponder.JSONResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/readresponder.JSONResponse"
                         }
@@ -205,7 +193,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "controller.AddressGeocodeRequestBody": {
+        "entities.AddressGeocode": {
             "type": "object",
             "required": [
                 "lat",
@@ -222,7 +210,7 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.AddressSearchRequestBody": {
+        "entities.AddressSearch": {
             "type": "object",
             "required": [
                 "query"

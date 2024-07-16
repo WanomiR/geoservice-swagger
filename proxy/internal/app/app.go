@@ -1,38 +1,27 @@
 package app
 
 import (
+	"errors"
 	"fmt"
-	"github.com/fatih/color"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
 	httpSwagger "github.com/swaggo/http-swagger"
+	"log"
 	"net/http"
 	"os"
-	"proxy/internal/controller"
-	"proxy/internal/entities"
-	"proxy/internal/repository/dbrepo"
-	"proxy/internal/service"
-	"proxy/internal/service/auth"
-	"proxy/internal/service/geoservice"
-	"proxy/internal/service/reverse"
-	"proxy/utils/readresponder"
+	"os/signal"
+	"proxy/internal/modules"
+	"proxy/internal/utils/readresponder"
+	"syscall"
+	"time"
 )
 
-type Config struct {
-	jwtSecret string
-	apiKey    string
-	secretKey string
-	host      string
-	port      string
-	proxyHost string
-	proxyPort string
-}
-
 type App struct {
-	config       Config
-	proxyService service.ProxyReverser
-	authService  service.Authenticator
-	controller   controller.Controller
+	server      *http.Server
+	signalChan  chan os.Signal
+	config      modules.ServicesConfig
+	services    *modules.Services
+	controllers *modules.Controllers
 }
 
 func NewApp() (*App, error) {
@@ -45,47 +34,53 @@ func NewApp() (*App, error) {
 	return a, nil
 }
 
-func (a *App) Run() error {
-	fmt.Println(color.RedString("listening on port: ") + color.GreenString("%+v", a.config.port))
-	return http.ListenAndServe(":"+a.config.port, a.routes())
+func (a *App) Serve() {
+	fmt.Println("Started server on port", a.config.Port)
+	if err := a.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		log.Fatal(err)
+	}
 }
 
-func (a *App) readConfig() error {
-	err := godotenv.Load(".env")
+func (a *App) Signal() <-chan os.Signal {
+	return a.signalChan
+}
+
+func (a *App) readConfig(configPath string) error {
+	err := godotenv.Load(configPath)
 	if err != nil {
 		return err
 	}
 
-	a.config.jwtSecret = os.Getenv("JWT_SECRET")
-	a.config.apiKey = os.Getenv("DADATA_API_KEY")
-	a.config.secretKey = os.Getenv("DADATA_SECRET_KEY")
-	a.config.host = os.Getenv("HOST")
-	a.config.port = os.Getenv("PORT")
-	a.config.proxyHost = os.Getenv("PROXY_HOST")
-	a.config.proxyPort = os.Getenv("PROXY_PORT")
+	a.config.Port = os.Getenv("PORT")
+	a.config.JwtSecret = os.Getenv("JWT_SECRET")
+	a.config.JwtAlg = os.Getenv("JWT_ALG")
+	a.config.ApiKey = os.Getenv("DADATA_API_KEY")
+	a.config.SecretKey = os.Getenv("DADATA_SECRET_KEY")
+	a.config.ProxyHost = os.Getenv("PROXY_HOST")
+	a.config.ProxyPort = os.Getenv("PROXY_PORT")
 
 	return nil
 }
 
 func (a *App) init() error {
 
-	if err := a.readConfig(); err != nil {
+	if err := a.readConfig(".env"); err != nil {
 		return err
 	}
 
-	a.proxyService = reverse.NewProxyReverse(a.config.proxyHost, a.config.proxyPort)
-
-	db := dbrepo.NewMapDBRepo(entities.User{Email: "admin@example.com", Password: "password"})
-	a.authService = auth.NewUserAuth("HS256", a.config.jwtSecret, auth.WithDatabase(db))
-
+	a.services = modules.NewServices(a.config)
 	rr := readresponder.NewReadRespond(readresponder.WithMaxBytes(1 << 20))
-	geo := geoservice.NewGeoService(a.config.apiKey, a.config.secretKey)
+	a.controllers = modules.NewControllers(a.services, rr)
 
-	a.controller = controller.NewAppController(
-		controller.WithResponder(rr),
-		controller.WithAuthenticator(a.authService),
-		controller.WithGeoService(geo),
-	)
+	a.server = &http.Server{
+		Addr:         ":" + a.config.Port,
+		Handler:      a.routes(),
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 5 * time.Second,
+	}
+
+	a.signalChan = make(chan os.Signal, 1)
+	signal.Notify(a.signalChan, syscall.SIGINT, syscall.SIGTERM)
 
 	return nil
 }
@@ -93,25 +88,25 @@ func (a *App) init() error {
 func (a *App) routes() *chi.Mux {
 	r := chi.NewRouter()
 
-	r.Use(a.proxyService.ProxyReverse)
+	r.Use(a.services.Proxy.ProxyReverse)
 
 	r.Route("/api", func(r chi.Router) {
-		r.Post("/register", a.controller.Register)
-		r.Post("/login", a.controller.Authenticate)
+		r.Post("/register", a.controllers.Auth.Register)
+		r.Post("/login", a.controllers.Auth.Authenticate)
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(200)
 			w.Write([]byte("Hello from API"))
 		})
 
 		r.Route("/address", func(r chi.Router) {
-			r.Use(a.authService.RequireAuthentication)
-			r.Post("/search", a.controller.AddressSearch)
-			r.Post("/geocode", a.controller.AddressGeocode)
+			r.Use(a.services.Auth.RequireAuthentication)
+			r.Post("/search", a.controllers.Geo.AddressSearch)
+			r.Post("/geocode", a.controllers.Geo.AddressGeocode)
 		})
 	})
 
 	r.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL(fmt.Sprintf("http://%s:%s/swagger/doc.json", a.config.host, a.config.port)),
+		httpSwagger.URL(fmt.Sprintf("http://localhost:%s/swagger/doc.json", a.config.Port)),
 	))
 
 	return r
